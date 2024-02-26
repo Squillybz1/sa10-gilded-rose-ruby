@@ -1,49 +1,55 @@
 class GildedRose
-  attr_reader :name, :days_remaining, :quality
+  class Item
+    attr_reader :quality, :days_remaining
 
-  def initialize(name:, days_remaining:, quality:)
-    @name, @quaility, @days_remaining = name, quaility, days_remaining
-  end
-
-  def tick
-    case name
-    when 'normal'
-      normal_tick
-    when 'Aged Brie'
-      brie_tick
-    when 'Sulfuras, Hand of Ragnaros'
-      sulfuras_tick
-    when 'Backstage passes to a TAFKAL80ETC concert'
-      backstage_tick
+    def initialize(quality, days_remaining)
+      @quality, @days_remaining = quality, days_remaining
     end
 
+    def tick
+    end
+  end
 
-    def normal_tick
+  class Normal < Item
+    def tick
       @days_remaining -= 1
       return if @quality == 0
 
       @quality -= 1
       @quality -= 1 if @days_remaining <= 0
     end
+  end
 
-    def brie_tick
+  class Brie < Item
+    def tick
       @days_remaining -= 1
       return if @quality >= 50
 
       @quality += 1
       @quality += 1 if @days_remaining <= 0
     end
+  end
 
-    def sulfuras_tick
-    end
-
-    def backstage_tick
+  class Backstage < Item
+    def tick
       @days_remaining -= 1
-      return              if @quality >= 50
+      return if @quality == 0
       return @quality = 0 if @days_remaining < 0
 
       @quality += 1
       @quality += 1 if @days_remaining < 10
       @quality += 1 if @days_remaining < 5
     end
+  end
+
+  DEFAULT_CLASS = Item
+  SPECIALIZED_CLASS = {
+    'normal' => Normal
+    'Aged Brie' => Brie
+    'Backstage passes to a TAFKAL80ETC concert' => 'Backstage'
+  }
+
+  def self.for(name, quality, days_remaining)
+    (SPECIALIZED_CLASS[name] || DEFAULT_CLASS).new(quality, days_remaining)
+  end
 end
